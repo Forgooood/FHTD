@@ -1,0 +1,155 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract | DigitalFair</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link rel="icon" href="{% static 'img/favicon.png' %}" sizes="16x16 32x32" type="image/png">
+    <style>
+        .bold-hr {
+            border-top: 3px solid black; /* Толщина и цвет границы */
+        }
+    </style>
+</head>
+<body>
+    <div class="container fluid mt-5">
+        <div class="row justify-content-center">
+            <div class="col">
+
+                <p class="text-center small lh-1">
+                    Внимание! Оплата данного счета означает согласие с условиями поставки 
+                    товара. Уведомление об оплате обязательно, в противном случае не 
+                    гарантируется наличие товара на складе. Товар отпускается по факту 
+                    прихода денег на р/с Поставщика, самовывозом, при наличии доверенности
+                    и документов удостоверяющих личность.
+                </p>
+                <h5 class="text-start">Образец платежного поручения</h5>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="text-center" scope="col">Бенефициар</th>
+                            <th class="text-center" scope="col">ИИН</th>
+                            <th class="text-center" scope="col">ИИК</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center">{{ offer_sale.salesman.first_name }} {{ offer_sale.salesman.last_name }}</td>
+                            <td class="text-center">{{ offer_sale.salesman.iin }}</td>
+                            <td class="text-center">KZ48125KZT1001300336</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="text-center" scope="col">Банк бенефициара</th>
+                            <th class="text-center" scope="col">Кбе</th>
+                            <th class="text-center" scope="col">БИК</th>
+                            <th class="text-center" scope="col">Код назначения платежа</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center">АО «First Heartland Jýsan Bank»</td>
+                            <td class="text-center">17</td>
+                            <td class="text-center">TSESKZKA</td>
+                            <td class="text-center">710</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h5 class="text-start">Счет на оплату № {{ offer_sale.pk }} от {{ offer_sale.datetime|date:"d.m.Y" }} г.</h5>
+                <hr class="bold-hr">
+                <table class="table-borderless">
+                    <tbody>
+                        <tr>
+                            <td class="text">Поставщик:</td>
+                            <td class="text">
+                                ИИН: {{ offer_sale.salesman.iin}}, {{ offer_sale.salesman.first_name }} 
+                                {{ offer_sale.salesman.last_name }}, {{ offer_sale.salesman.country }},
+                                {{ offer_sale.salesman.city }}, {{ offer_sale.salesman.street }}, 
+                                {{ offer_sale.salesman.home_number }}, тел: {{ offer_sale.salesman.phone }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text">Покупатель:</td>
+                            <td class="text">
+                                ИИН: {{ offer_buy.buyer.iin}}, {{ offer_buy.buyer.first_name }} 
+                                {{ offer_buy.buyer.last_name }}, {{ offer_buy.buyer.country }},
+                                {{ offer_buy.buyer.city }}, {{ offer_buy.buyer.street }}, 
+                                {{ offer_buy.buyer.home_number }}, тел: {{ offer_buy.buyer.phone }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text">Договор:</td>
+                            <td class="text">б/н от {{ offer_buy.datetime|date:"d.m.Y" }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="text-center" scope="col">№</th>
+                            <th class="text-center" scope="col">Наименование</th>
+                            <th class="text-center" scope="col">Кол-во</th>
+                            <th class="text-center" scope="col">Ед.изм.</th>
+                            <th class="text-center" scope="col">Цена</th>
+                            <th class="text-center" scope="col">Сумма</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center">1</td>
+                            <td class="text-center">{{ offer_sale.title }}</td>
+                            <td class="text-center" id="amount">{{ offer_buy.amount }}</td>
+                            <td class="text-center">{{ offer_sale.unit }}</td>
+                            <td class="text-center" id="price">{{ offer_buy.price }}</td>
+                            <td class="text-center" id="totalTable"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h6 class="text-start">Всего наименований 1, на сумму <span id="totalText"></span> KZT</h6>
+                <br> <br>
+                <h6 class="text-start">Исполнитель:____________________________ {{ offer_buy.buyer.first_name }} {{ offer_buy.buyer.last_name }}</h6>
+                <div class="d-grid gap-2 mt-3">
+                        <button type="button" id="print-button" class="btn btn-outline-dark"><i class="bi bi-printer-fill"></i> Print</button>
+                        <a class="btn btn-outline-dark" href="{% url 'cabinet_url'%}"><i class="bi bi-x-lg"></i>Закрыть</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById("print-button").addEventListener("click", function() {
+            window.print(); 
+        });
+    </script>
+    <script>
+        const amountTd = document.getElementById("amount");
+        const priceTd = document.getElementById("price");
+        const totalTableSpan = document.getElementById("totalTable");
+        const totalTextSpan = document.getElementById("totalText");
+    
+        function calculateTotal() {
+            const amountValue = parseFloat(amountTd.textContent);
+            const priceValue = parseFloat(priceTd.textContent);
+    
+            if (!isNaN(amountValue) && !isNaN(priceValue)) {
+                const total = amountValue * priceValue;
+                const formattedTotal = total.toFixed(2);
+                totalTableSpan.textContent = formattedTotal;
+                totalTextSpan.textContent = formattedTotal;
+            } else {
+                totalTableSpan.textContent = "Некорректные данные";
+                totalTextSpan.textContent = "Некорректные данные";
+            }
+        }
+    
+        window.addEventListener("load", calculateTotal);
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Cabinet{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'offer_create_url' %}" class="btn btn-outline-dark">Создать предложение на продажу</a>
+                    </div>
+                    {% if offers %}
+                    {% for offer in offers %}
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <ul class="list-unstyled">
+                                        <li class="list-group-item"><h5><a class="text-decoration-none" href="{% url 'offer_url' offer.id %}">{{ offer.title }} {{ offer.manufacturer }} {{ offer.offer_model }}</a></h5></li>
+                                        <li class="list-group-item text-muted">Категория: {{ offer.category.name }}</li>
+                                        <li class="list-group-item">Количество: {{ offer.amount }}</li>
+                                        <li class="list-group-item">Стоимость за {{ offer.unit }}: {{ offer.price }} KZT</li>
+                                        <li class="list-group-item">Состояние: 
+                                            {% if offer.condition_new %}
+                                                <span>Новое</span>
+                                            {% else %}
+                                                <span>Бывшее в употреблении</span>
+                                            {% endif %}
+                                        </li>
+                                        <li class="list-group-item">Дата публикации: {{ offer.datetime }}</li>
+                                    </ul>
+                                    <a href="{% url 'offers_buy_url' offer.id %}" class="btn btn-outline-dark">
+                                        Предложения на покупку <span class="badge bg-secondary">{{ offer.count }}</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+
+                <img src="{{ user.avatar.url }}" class="card-img-top" alt="Avatar">
+                <div class="card-body">
+                    <table class="table-borderless">
+                        <h4 class="card-title">{{ user.first_name }} {{ user.last_name }}</h4>
+                        <tbody>
+                            <tr>
+                                <td class="card-text"><i class="bi bi-envelope-at-fill"></i></td>
+                                <td class="card-text">{{ user.email }}</td>
+                            </tr>
+                            <tr>
+                                <td class="card-text"><i class="bi bi-telephone-fill"></i></td>
+                                <td class="card-text">{{ user.phone }}</td>
+                            </tr>
+                            <tr>
+                                <td class="card-text"><i class="bi bi-house-door-fill"></i></td>
+                                <td class="card-text">{{ user.country }}, {{ user.city }}, {{ user.street }}, {{ user.home_number }}</td>
+                            </tr>
+                            <tr>
+                                <td class="card-text"><i class="bi bi-calendar-check-fill"></i></td>
+                                <td class="card-text">{{ user.date_joined|date:"d.m.Y" }} г.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                        <div class="d-grid gap-2 mt-3">
+                            <a href="{% url 'edit_profile_url' %}" class="btn btn-outline-dark">Редактировать профиль</a>
+                            {% if user.is_superuser %}
+                            <a href="{% url 'admin:index' %}" class="btn btn-outline-dark">Панель администратора</a>
+                            {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

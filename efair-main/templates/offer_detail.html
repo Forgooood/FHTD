@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Offer Detail{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <img src="{% if offer.image %}{{ offer.image.url }}{% else %}{% static 'img/no_item_image.jpg' %}{% endif %}" class="img-fluid" alt="Product Image">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4>{{ offer.title }}</h4>
+                    <dl class="row">
+                        <dt class="col-sm-3 text-muted">Категория:</dt>
+                        <dd class="col-sm-9 text-muted">{{ offer.category.name }}</dd>
+                        <dt class="col-sm-3">Количество:</dt>
+                        <dd class="col-sm-9">{{ offer.amount }} {{ offer.unit.name}}</dd>
+                        <dt class="col-sm-3">Стоимость:</dt>
+                        <dd class="col-sm-9" id="price">{{ offer.price }} KZT |</dd>
+                        <dt class="col-sm-3">Состояние:</dt>
+                        <dd class="col-sm-9">
+                            {% if offer.condition_new %}
+                            <span>Новое</span>
+                            {% else %}
+                            <span>Бывшее в употреблении</span>
+                            {% endif %}
+                        </dd>
+                        <dt class="col-sm-3">Статус:</dt>
+                        <dd class="col-sm-9">
+                            {% if offer.in_active %}
+                            <span>Актуально</span>
+                            {% else %}
+                            <span>Не актуально</span>
+                            {% endif %}
+                        </dd>
+                    </dl>
+                    <div class="d-grid gap-2 mt-3">
+                        {% if user == offer.salesman %}
+                            <a class="btn btn-outline-dark" href="{% url 'offer_edit_url' offer.id %}">Редактировать предложение</a>
+                            <a class="btn btn-outline-dark" href="{% url 'offer_delete_url' offer.id %}">Удалить предложение</a>
+                        {% endif %}
+                        <a class="btn btn-outline-dark" href="{% url 'create_offer_buy_url' offer.id %}">Сделать предложение</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3">
+        <div class="card">
+            <div class="card-body">
+                <h2>Описание</h2>
+                <p>{{ offer.description }}</p>
+                <dl class="row col-md-8">
+                    <dt class="col-sm-3">Производитель:</dt>
+                    <dd class="col-sm-9">{{ offer.manufacturer.name }}</dd>
+                    <dt class="col-sm-3">Модель:</dt>
+                    <dd class="col-sm-9">{{ offer.offer_model.name }}</dd>
+                    <dt class="col-sm-3">Адрес:</dt>
+                    <dd class="col-sm-9" id="address">
+                        <a href="#" class="link-offset-2 link-underline link-underline-opacity-0" data-toggle="modal" data-target="#mapModal">{{ offer.country }}, {{ offer.city }}, {{ offer.street }}, {{ offer.home_number }}</a>
+                    </dd>
+                    <dt class="col-sm-3">Дата публикации:</dt>
+                    <dd class="col-sm-9">{{ offer.datetime }}</dd>
+                </dl>
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Подключение jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Модальное окно для предпросмотра -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewModalLabel">Предпросмотр</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Вывод адреса и ссылки на карту -->
+                <p>Адрес: <span id="address">{{ offer.country }}, {{ offer.city }}, {{ offer.street }}, {{ offer.home_number }}</span></p>
+                <p>Посмотреть на карте: <a href="#" id="mapLink">Открыть карту</a></p>
+                <div id="map" style="width: 100%; height: 300px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.onload=()=>{
+        var kzt={{ offer.price }};
+        var request=new XMLHttpRequest();
+
+        request.onreadystatechange=function() {
+            if(request.readyState == 4){
+                var price=document.getElementById('price');
+                var response=JSON.parse(request.responseText);
+                price.innerHTML=response['old_amount'] + ' KZT | ' + response['new_amount'] + ' USD';
+            }
+        };
+        var url='https://api.api-ninjas.com/v1/convertcurrency?want=USD&have=KZT&amount=' + kzt;
+        request.open('get', url, true);
+        request.setRequestHeader('X-Api-Key', 'MncbwUDMbimwWA35l1yoVA==WeF7lepobbYVn4T3');
+        request.send();
+    }
+</script>
+
+<script src="https://api-maps.yandex.ru/2.1/?apikey=69e2026c-74bf-450d-8b2c-c17c3e2f1611&lang=ru_RU"></script>
+
+<!-- Скрипт для предпросмотра в модальном окне -->
+<script>
+    jQuery(document).ready(function() {
+        jQuery('[data-toggle="modal"]').on('click', function() {
+            const addressElement = document.getElementById("address");
+            const addressText = addressElement.textContent.trim();
+
+            ymaps.ready(function() {
+                const geocoder = ymaps.geocode(addressText);
+
+                geocoder.then(function(res) {
+                    const coords = res.geoObjects.get(0).geometry.getCoordinates();
+
+                    // Создаем карту и метку
+                    const map = new ymaps.Map('map', {
+                        center: coords,
+                        zoom: 16
+                    });
+
+                    const placemark = new ymaps.Placemark(coords);
+                    map.geoObjects.add(placemark);
+
+                    // Обновляем ссылку на карту в модальном окне
+                    const mapLink = document.getElementById("mapLink");
+                    mapLink.setAttribute("href", `https://yandex.com/maps/?pt=${coords[1]},${coords[0]}&z=16`);
+
+                    // Открываем модальное окно
+                    $('#previewModal').modal('show');
+                });
+            });
+        });
+    });
+</script>
+
+{% endblock %}

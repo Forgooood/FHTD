@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Home{% endblock title %}
+{% block content %}
+
+<div class="row">
+    <div class="col-sm-4 my-auto">
+        <div class="bg-img" id="lottieAnimation" style="width: 600px; height: 600px;"></div>
+    </div>
+    <div class="col-sm-8 text-center my-auto">
+        {% if user.is_authenticated %}
+            <h2>Добро пожаловать на «Цифровую ярмарку»!</h2> 
+            <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+        {% else %}
+            <h2>Добро пожаловать на «Цифровую ярмарку»!</h2> 
+            <h1></h1>
+        {% endif %}
+    </div>
+  
+<div class="container mt-5">
+    <h3>Последние предложения | <a class="text-decoration-none" href="{% url 'offers_url'%}">Все предложения</a></h3>
+    <div class="row">
+        {% for offer in page_obj %}
+        <div class="col-md-3 mt-3">
+            <div class="card">
+                <img src="{{ offer.image.url }}" class="card-img-top" alt="{{ offer.title }}">
+                <div class="card-body">
+                    <h5 class="card-title text-truncate">{{ offer.title }}</h5>
+                    <p class="card-text text-truncate">{{ offer.manufacturer }} {{ offer.offer_model }}</p>
+                    <p class="card-text text-truncate">Количество: {{ offer.amount }} {{ offer.unit }}</p>
+                    <p class="card-text text-truncate">Стоимость за {{ offer.unit }}: {{ offer.price }} KZT</p>
+                    <a href="{% url 'offer_url' offer.id %}" class="btn btn-outline-dark d-grid gap-2">Подробнее</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="container mt-3">
+            <div class="d-flex justify-content-center">
+                <div class="pagination">
+                    <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a class="text-decoration-none" href="?page=1">&laquo; первая</a>
+                        <a class="text-decoration-none" href="?page={{ page_obj.previous_page_number }}">предыдущая</a>
+                    {% endif %}
+            
+                    <span class="current">
+                        Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+                    </span>
+            
+                    {% if page_obj.has_next %}
+                        <a class="text-decoration-none" href="?page={{ page_obj.next_page_number }}">следующая</a>
+                        <a class="text-decoration-none" href="?page={{ page_obj.paginator.num_pages }}">последняя &raquo;</a>
+                    {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+<div class="container mt-5">
+    <h3>Новости</h3>
+    <div class="row">
+        {% for news in news %}
+        <div class="col-md-6 mt-3">
+            <div class="card">
+                <img src="{{ news.image.url }}" class="card-img-top" alt="{{ news.title }}">
+                <div class="card-body">
+                    <h5 class="card-title text-truncate">{{ news.title }}</h5>
+                    <p class="card-text text-truncate">{{ news.body }}</p>
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+  
+<script src="https://cdn.jsdelivr.net/npm/lottie-web@5.7.9/dist/lottie.min.js"></script>
+
+<script>
+    const animationContainer = document.getElementById('lottieAnimation');
+    lottie.loadAnimation({
+        container: animationContainer,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: '{% static 'doc/hello.json' %}'
+    });
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        loadLatestOffers();
+  
+        function loadLatestOffers() {
+            $.ajax({
+                url: "{% url 'home_url' %}",
+                method: "GET",
+                dataType: "json",
+                success: function(data) {
+                    $("#latest-offers").empty();
+    
+                    data.forEach(function(offer) {
+                        var offerHTML = '<div class="card">';
+                        offerHTML += '<img src="' + offer.image_url + '" class="card-img-top" alt="' + offer.title + '">';
+                        offerHTML += '<div class="card-body">';
+                        offerHTML += '<h5 class="card-title text-truncate">' + offer.title + '</h5>';
+                        offerHTML += '<p class="card-text text-truncate">' + offer.description + '</p>';
+                        offerHTML += '<p class="card-text text-truncate">Количество: ' + offer.amount + ' ' + offer.unit + '</p>';
+                        offerHTML += '<p class="card-text text-truncate">Стоимость: ' + offer.price + ' тенге</p>';
+                        offerHTML += '<a href="#" class="btn btn-outline-dark d-grid gap-2" data-offer-url="{% url 'offer_url' 0 %}" data-offer-id="' + offer.id + '">Подробнее</a>';
+                        offerHTML += '</div>';
+                        offerHTML += '</div>';
+                        $("#latest-offers").append(offerHTML);
+                    });
+                },
+                error: function() {
+                    console.log("Произошла ошибка при загрузке данных");
+                }
+            });
+        }
+        
+        $(document).on("click", ".btn[data-offer-id]", function(event) {
+            event.preventDefault();
+            var offerId = $(this).data("offer-id");
+            var offerUrl = $(this).data("offer-url").replace("0", offerId);
+            window.location.href = offerUrl;
+        });
+    });
+</script>
+
+{% endblock content %}
+

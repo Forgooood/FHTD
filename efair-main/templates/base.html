@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock title %} | DigitalFair </title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="icon" href="{% static 'img/favicon.png' %}" sizes="16x16 32x32" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="{% static 'doc/lottie.min.js' %}"></script>
+    <style>
+        body {
+            background-color: #d7d7d7;
+            font-family: 'Manrope', sans-serif;
+            margin-bottom: 70px;
+        }
+        .nav-link {
+            color: #d7d7d7 ;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm sticky-top" style="background-color: #333333;">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home_url' %}">
+                <img src="{% static 'img/logo.png' %}" alt="Logo" height="50" class="d-inline-block align-text-center">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home_url' %}">Главная</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'cabinet_url' %}">Кабинет</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'offers_url' %}">Предложения</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                {% if user.is_authenticated %}
+                <ul class ="navbar-nav">
+                    <li class="nav-item my-auto">
+                        <a class="nav-link " href="{% url 'cabinet_url' %}"><i class="bi bi-person-circle"></i> {{ user.first_name }} {{ user.last_name }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout_url' %}">Выход</a>
+                    </li>
+                </ul>
+                {% else %}
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login_url' %}">Авторизация</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'signup_url' %}">Регистрация</a>
+                    </li>
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        {% block content %}
+        {% endblock content %}
+    </div>
+    <footer class="text-white py-3 fixed-bottom" style="background-color: #009999;">
+        <div class="container text-center">
+            &copy;<span>{{ current_year }}</span>  Project for JustCode
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</html>

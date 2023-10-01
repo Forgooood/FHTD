@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offer Delete | DigitalFair</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="icon" href="{% static 'img/favicon.png' %}" sizes="16x16 32x32" type="image/png">
+    <style>
+    body {
+        background-color: #f8f9fa;
+        margin-bottom: 70px;
+    }
+        .custom-btn {
+        width: 125px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+        <h2 class="mb-4">Удаление предложения</h2>
+            <h4>Вы уверены, что хотите удалить это предложение?</h4>
+            <h5>Название: {{ offer.title }} {{ offer.manufacturer }} {{ offer.offer_model }}</h5>
+            <p>Описание: {{ offer.description }}</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-2 mt-3">
+                {% if user.is_authenticated %}
+                <button type="submit" class="btn btn-outline-dark">Удалить</button>
+                {% endif %}
+                <a class="btn btn-outline-dark" href="{% url 'offer_url' offer.id %}">Закрыть</a>
+            </div>
+        </form>
+</body>
+</html>
+    
